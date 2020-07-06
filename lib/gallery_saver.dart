@@ -46,11 +46,8 @@ class GallerySaver {
     if (path == null || path.isEmpty) {
       throw ArgumentError(pleaseProvidePath);
     }
-    if (!isImage(path)) {
-      throw ArgumentError(fileIsNotImage);
-    }
     if (!isLocalFilePath(path)) {
-      tempFile = await _downloadFile(path);
+      tempFile = await _downloadImageFile(path);
       path = tempFile.path;
     }
 
@@ -72,6 +69,20 @@ class GallerySaver {
     var bytes = req.bodyBytes;
     String dir = (await getTemporaryDirectory()).path;
     File file = new File('$dir/${basename(url)}');
+    await file.writeAsBytes(bytes);
+    print('File size:${await file.length()}');
+    print(file.path);
+    return file;
+  }
+
+  static Future<File> _downloadImageFile(String url) async {
+    print(url);
+    http.Client _client = new http.Client();
+    var req = await _client.get(Uri.parse(url));
+    var bytes = req.bodyBytes;
+    String dir = (await getTemporaryDirectory()).path;
+    String name = basename(url).split("?")[0];
+    File file = new File('$dir/$name');
     await file.writeAsBytes(bytes);
     print('File size:${await file.length()}');
     print(file.path);
