@@ -81,7 +81,8 @@ class GallerySaver {
     var req = await _client.get(Uri.parse(url));
     var bytes = req.bodyBytes;
     String dir = (await getTemporaryDirectory()).path;
-    String name = basename(url).split("?")[0];
+    String ext = basename(url).split("?")[0].split(".")[1];
+    String name = basename(url).split("?")[0].split(".")[0] + DateTime.now().millisecond.toString() + "." + ext;
     File file = new File('$dir/$name');
     await file.writeAsBytes(bytes);
     print('File size:${await file.length()}');
