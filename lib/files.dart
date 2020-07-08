@@ -30,3 +30,8 @@ bool isVideo(String path) =>
 
 bool isImage(String path) =>
     imageFormats.contains(extension(path).toLowerCase());
+
+enum MediaType{
+  VIDEO,
+  IMAGE
+}
