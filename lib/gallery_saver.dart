@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:gallery_saver/files.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
 
 class GallerySaver {
   static const String channelName = 'gallery_saver';
@@ -18,8 +17,12 @@ class GallerySaver {
   static const MethodChannel _channel = const MethodChannel(channelName);
 
   ///saves video from provided temp path and optional album name in gallery
-  static Future<bool> saveVideo(String path, String fileName,
-      {String albumName}) async {
+  static Future<bool> saveVideo(
+    String path,
+    String fileName, {
+    String albumName,
+    Map<String, String> headers,
+  }) async {
     File tempFile;
     if (path == null || path.isEmpty) {
       throw ArgumentError(pleaseProvidePath);
@@ -28,12 +31,20 @@ class GallerySaver {
       throw ArgumentError(fileIsNotVideo);
     }
     if (!isLocalFilePath(path)) {
-      tempFile = await _downloadFile(path, fileName, MediaType.VIDEO);
+      tempFile = await _downloadFile(
+        path,
+        fileName,
+        MediaType.VIDEO,
+        headers: headers,
+      );
       path = tempFile.path;
     }
     bool result = await _channel.invokeMethod(
       methodSaveVideo,
-      <String, dynamic>{'path': path, 'albumName': albumName},
+      <String, dynamic>{
+        'path': path,
+        'albumName': albumName,
+      },
     );
     if (tempFile != null) {
       tempFile.delete();
@@ -43,19 +54,27 @@ class GallerySaver {
 
   ///saves image from provided temp path and optional album name in gallery
   static Future<bool> saveImage(String path, String fileName,
-      {String albumName}) async {
+      {String albumName, Map<String, String> headers}) async {
     File tempFile;
     if (path == null || path.isEmpty) {
       throw ArgumentError(pleaseProvidePath);
     }
     if (!isLocalFilePath(path)) {
-      tempFile = await _downloadFile(path, fileName, MediaType.IMAGE);
+      tempFile = await _downloadFile(
+        path,
+        fileName,
+        MediaType.IMAGE,
+        headers: headers,
+      );
       path = tempFile.path;
     }
 
     bool result = await _channel.invokeMethod(
       methodSaveImage,
-      <String, dynamic>{'path': path, 'albumName': albumName},
+      <String, dynamic>{
+        'path': path,
+        'albumName': albumName,
+      },
     );
     if (tempFile != null) {
       tempFile.delete();
@@ -65,10 +84,13 @@ class GallerySaver {
   }
 
   static Future<File> _downloadFile(
-      String url, String fileName, MediaType mediaType) async {
-    print(url);
+    String url,
+    String fileName,
+    MediaType mediaType, {
+    Map<String, String> headers,
+  }) async {
     http.Client _client = new http.Client();
-    var req = await _client.get(Uri.parse(url));
+    var req = await _client.get(Uri.parse(url), headers: headers);
     var bytes = req.bodyBytes;
     String dir = (await getTemporaryDirectory()).path;
     String ext = mediaType == MediaType.IMAGE ? ".jpeg" : ".mp4";
