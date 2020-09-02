@@ -1,6 +1,6 @@
 name: gallery_saver
 description: Saves images and videos from network or temporary file to external storage. Both images and videos will be visible in Android Gallery and iOS Photos.
-version: 2.0.1
+version: 2.0.2
 author: Carnegie Technologies d.o.o <devoffice@carnegietechnologies.com>
 homepage: https://github.com/CarnegieTechnologies/gallery_saver
 
@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  path_provider: ^1.2.0
-  http: ^0.12.0+2
-  path: ^1.6.2
+  path_provider: ^1.6.14
+  http: ^0.12.2
+  path: ^1.7.0
 
 dev_dependencies:
   flutter_test:
